@@ -1,26 +1,59 @@
 {
-  "version": "0.1.0",
-  "command": "npm",
-  "isShellCommand": true,
-  "args": ["run"],
-  "showOutput": "always",
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
   "tasks": [
     {
-      "taskName": "build",
-      "isBuildCommand": true
+      "taskName": "Run current file",
+      "command": "ts-node ${relativeFile}",
+      "type": "shell",
+      "problemMatcher": []
     },
     {
-      "taskName": "clean"
+      "type": "npm",
+      "label": "clean",
+      "script": "clean",
+      "problemMatcher": []
     },
     {
-      "taskName": "lint"
+      "type": "npm",
+      "label": "build",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher":[]
     },
     {
-      "taskName": "coverage"
+      "type": "npm",
+      "label": "format",
+      "script": "format",
+      "problemMatcher": []
     },
     {
-      "taskName": "test",
-      "isTestCommand": true
+      "type": "npm",
+      "label": "coverage",
+      "script": "coverage",
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "label": "test",
+      "script": "test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "label": "lint",
+      "script": "lint",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ]
     }
   ]
 }

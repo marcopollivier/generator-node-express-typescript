@@ -1,99 +1,112 @@
 'use strict';
-var yeoman = require('yeoman-generator');
-var chalk = require('chalk');
-var yosay = require('yosay');
-var path = require('path');
-var _ = require('lodash');
+const Generator = require('yeoman-generator');
+const chalk = require('chalk');
+const yosay = require('yosay');
+const path = require('path');
+const _ = require('lodash');
+const shelljs = require('shelljs');
 
-module.exports = yeoman.generators.Base.extend({
-  initializing: function () {
-    var done = this.async();
+module.exports = Generator.extend({
+  initializing: function() {
+    const done = this.async();
 
     // Have Yeoman greet the user.
-    this.log(yosay(
-      'Welcome to the minimal ' + chalk.red('Node TypeScript') + ' generator!'
-    ));
+    this.log(
+      yosay(
+        'Welcome to the minimal ' + chalk.red('Node TypeScript') + ' generator!'
+      )
+    );
 
     this.log(
-      chalk.cyan('I simply get down to business of generating, no questions asked!')
-      + '\n'
-      + chalk.yellow('Libraries you ask? I use npm (or optionally gulp) as task runner and mocha for testing.')
-      + '\n'
-      + chalk.gray('Can you change these? Of course, it\'s your code. I get out of the way after scaffolding.')
+      chalk.cyan(
+        'I simply get down to business of generating, no questions asked!'
+      ) +
+        '\n' +
+        chalk.yellow(
+          'Libraries you ask? I use npm as task runner and jest for testing.'
+        ) +
+        '\n' +
+        chalk.gray(
+          'Can you change these? Of course, it\'s your code. I get out of the way after scaffolding.'
+        )
     );
+
+    this.composeWith(
+      require.resolve('../classlib'),
+      Object.assign({ arguments: ['Greeter'] }, this.options)
+    );
+
+    if (this.options.gulp) {
+      throw new Error('Gulp option is no longer supported.');
+    }
 
     done();
   },
 
   writing: {
-    dir: function () {
-      this.directory('src', 'src');
-
-      // 2.0.0-beta: copying the spec file needs templating due to the ts-node problem on windows
-      // this.directory('test', 'test');
-      this.fs.copyTpl(
-        this.templatePath('test/greeter-spec.ts'),
-        this.destinationPath('test/greeter-spec.ts'),
-        { isWindows: process.platform === 'win32' }
+    vsCodeFiles: function() {
+      this.fs.copy(
+        this.templatePath('_vscode/tasks.json'),
+        this.destinationPath('.vscode/tasks.json')
       );
-      this.fs.copyTpl(
-        this.templatePath('test/index-spec.ts'),
-        this.destinationPath('test/index-spec.ts'),
-        { isWindows: process.platform === 'win32' }
+      this.fs.copy(
+        this.templatePath('_vscode/settings.json'),
+        this.destinationPath('.vscode/settings.json')
       );
+      if (!(this.options.mocha || this.options.ava)) {
+        // copy launch.json only for default jest configuration
+        this.fs.copy(
+          this.templatePath('_vscode/launch.json'),
+          this.destinationPath('.vscode/launch.json')
+        );
+      }
     },
 
-    projectfiles: function () {
-      var today = new Date();
+    rootFiles: function() {
+      const today = new Date();
 
-      if (this.options.gulp) {
-        this.fs.copy(
-          this.templatePath('_vscode/tasks_gulp.json'),
-          this.destinationPath('.vscode/tasks.json')
-        );
-
+      if (this.options.mocha) {
+        // copy mocha files
         this.fs.copyTpl(
-          this.templatePath('_package_gulp.json'),
+          this.templatePath('_package_mocha.json'),
           this.destinationPath('package.json'),
           { appname: _.kebabCase(path.basename(process.cwd())) }
         );
-
         this.fs.copy(
-          this.templatePath('_gulpfile.js'),
-          this.destinationPath('gulpfile.js'),
+          this.templatePath('travis_mocha.yml'),
+          this.destinationPath('.travis.yml')
+        );
+      } else if (this.options.ava) {
+        // copy ava files
+        this.fs.copyTpl(
+          this.templatePath('_package_ava.json'),
+          this.destinationPath('package.json'),
           { appname: _.kebabCase(path.basename(process.cwd())) }
         );
-
         this.fs.copy(
-          this.templatePath('README_gulp.md'),
-          this.destinationPath('README.md')
+          this.templatePath('travis_ava.yml'),
+          this.destinationPath('.travis.yml')
+        );
+        this.fs.copy(
+          this.templatePath('_tsconfig.test.json'),
+          this.destinationPath('tsconfig.test.json')
         );
       } else {
-        this.fs.copy(
-          this.templatePath('_vscode/tasks.json'),
-          this.destinationPath('.vscode/tasks.json')
-        );
-
+        // copy files for default jest configuration
         this.fs.copyTpl(
           this.templatePath('_package.json'),
           this.destinationPath('package.json'),
           { appname: _.kebabCase(path.basename(process.cwd())) }
         );
-
         this.fs.copy(
           this.templatePath('travis.yml'),
           this.destinationPath('.travis.yml')
         );
-
-        this.fs.copy(
-          this.templatePath('README.md'),
-          this.destinationPath('README.md')
-        );
       }
-
+      // copy files common for all configurations
       this.fs.copy(
-        this.templatePath('_vscode/settings.json'),
-        this.destinationPath('.vscode/settings.json')
+        this.templatePath('README.md'),
+        this.destinationPath('README.md')
       );
       this.fs.copy(
         this.templatePath('_tsconfig.json'),
@@ -111,6 +124,10 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('gitignore'),
         this.destinationPath('.gitignore')
       );
+      this.fs.copy(
+        this.templatePath('npmignore'),
+        this.destinationPath('.npmignore')
+      );
       this.fs.copyTpl(
         this.templatePath('LICENSE'),
         this.destinationPath('LICENSE'),
@@ -120,12 +137,15 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   install: {
-    npmInstall: function () {
-      var generator = this;
-      generator.npmInstall(null, { skipInstall: this.options['skip-install'] }, function () {
-        //generator.spawnCommandSync('typings', ['init']); //typings init
-        //generator.spawnCommandSync('typings', ['install', 'dt~node', '--save', '--global']) //typings install --save dt~node --global
-      });
+    npmInstall: function() {
+      const generator = this;
+      if (shelljs.which('yarn')) {
+        generator.yarnInstall();
+      } else {
+        generator.npmInstall(null, {
+          skipInstall: this.options['skip-install']
+        });
+      }
     }
   }
 });

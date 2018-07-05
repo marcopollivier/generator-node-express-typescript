@@ -8,15 +8,10 @@ I'm a minimal [Yeoman](http://yeoman.io) generator for creating NodeJS express s
 
 I use:
 
-- _npm_ - as task runner. You can choose to use _gulp_ instead.
-- _tslint_ - as linter for TypeScript source files.
-- _mocha_ - as testing framework to write specs in **TypeScript** itself.
-- _istanbul_ - a JavaScript code coverage tool working on TypeScript files.
+- _npm_ - as task runner.
+- _jest_ - as [testing and coverage framework](https://facebook.github.io/jest/) to write specs in **TypeScript** itself. You can choose to use _mocha_ or _ava_ instead.
 
-**I don't use: a UI renderer or anything visual**
-I am a pure API targeted generator. So with me, you should build REST API's. 
-
-You want to know if you can change any of these? Of course, why not? It is your module after all. I simply get down to business of generating, no questions asked. Once done, I get out of the way and you can do as you please!
+You want to know if you can change any of these? Of course, why not? It is your package after all. I simply get down to business of generating, no questions asked and then quiety get out of the way!
 
 ## Usage
 
@@ -36,61 +31,33 @@ $mkdir my-new-project && cd $_
 Run the generator.
 
 ```sh
-$yo node-express-typescript
+$yo node-typescript
 ```
 
-You can choose to use _gulp_ as your build system using command - `$yo node-express-typescript --gulp`
+You can choose to use _mocha_ as your test framework using command - `$yo node-typescript --mocha`
 
-Run `npm run` for information on available tasks.
+You can choose to use _ava_ as your test framework using command - `$yo node-typescript --ava`
 
-```sh
- $npm run
-Lifecycle scripts included in node-ts:
-  test
-    npm run build && mocha --compilers ts:ts-node/register --recursive test/**/*-spec.ts
-  coverage
-    nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register
-
-available via `npm run-script`:
-  clean
-    rimraf lib
-  lint
-    tslint --format verbose 'src/**/*.ts'
-  build
-    npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty
-  coverage
-    nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register
-  watch
-    npm run build -- --watch
-  watch:test
-    npm run test -- --watch
-```
-
-If you choose to use _gulp_, you can find the available tasks using command `gulp help`.
+Generate a new class and test file.
 
 ```sh
-$gulp help
-
-Usage
-  gulp [TASK] [OPTIONS...]
-
-Available tasks
-  build  Compiles all TypeScript source files [lint]
-  clean  Cleans the generated js files from lib directory
-  help   Display this help text.
-  lint   Lints all TypeScript source files
-  test   Runs the mocha test specs [build]
-  watch  Watches ts source files and runs build on change
+$yo node-typescript:classlib MyNewClass [--mocha | --ava]
 ```
 
 ## Highlights of the latest release
 
 - I use latest version of **TypeScript**.
-- I use _npm_ to fetch type definitions making life so much easier. You can find more information on [https://blogs.msdn.microsoft.com/typescript/2016/06/15/the-future-of-declaration-files/](https://blogs.msdn.microsoft.com/typescript/2016/06/15/the-future-of-declaration-files/).
-- I use _mocha_ as testing framework as it allows easier test runs from command line. Also, one of the most important things regarding testing is **now you can write tests in TypeScript itself**. The out-of-box configuration includes use of [ts-node](https://github.com/TypeStrong/ts-node) as mocha compiler allowing executing specs written in TypeScript without compiling them first.
-- I need **no global dependencies**. Every dependency such as _TypeScript_ and _tslint_ is installed as local dev dependency allowing you to freely use different versions of these for different modules.
-- I provide test coverage support using _istanbul_.
-- I provide nice integration with [VS Code editor](https://code.visualstudio.com/). I configure `build`, `clean`, `lint`, `coverage` and `test` tasks that you can run using `Run Task` option.
+- I use [yarn](https://yarnpkg.com) in place of npm if it's available.
+- I use _jest_ which is a "batteries-included" testing framework with coverage built-in (optionally _mocha_ or _ava_). **You write tests in TypeScript itself**.
+- I use _prettier_ integrated with _tslint_ to provide no-fuss code formatting and linting.
+- I need **no global dependencies**. Every dependency such as _TypeScript_ and _tslint_ is installed as local dev dependency allowing you to freely use different versions of these for different packages.
+
+  ### Integration with VS Code
+- I configure `build`, `clean`, `lint`, `coverage`, `format` and `test` tasks that you can run using `Run Task` option.
+- You can directly run currently open source file using task `Run current file`. I use [ts-node](https://github.com/TypeStrong/ts-node) to provide this functionality.
+- You can debug currently open source file using `Debug file` launch configuration. You can also debug currently open test file using `Debug test` launch configuration without the need of compiling it first. Here is the preview -
+
+  ![TypeScript debugging in VS Code](./img/vscode-ts-debug.gif)
 
 ## License
 

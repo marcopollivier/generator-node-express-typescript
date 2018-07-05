@@ -3,10 +3,15 @@
     "declaration": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "noImplicitAny": true,
+    "lib": [
+      "esnext"
+    ],
+    "target": "es2015",
+    "strict": true,
     "outDir": "./lib",
     "preserveConstEnums": true,
     "removeComments": true,
+    "inlineSourceMap": true,
     "typeRoots": [
       "./node_modules/@types"
     ]
