@@ -31,17 +31,17 @@ $mkdir my-new-project && cd $_
 Run the generator.
 
 ```sh
-$yo node-typescript
+$yo node-typescript-express
 ```
 
-You can choose to use _mocha_ as your test framework using command - `$yo node-typescript --mocha`
+You can choose to use _mocha_ as your test framework using command - `$yo node-typescript-express --mocha`
 
-You can choose to use _ava_ as your test framework using command - `$yo node-typescript --ava`
+You can choose to use _ava_ as your test framework using command - `$yo node-typescript-express --ava`
 
 Generate a new class and test file.
 
 ```sh
-$yo node-typescript:classlib MyNewClass [--mocha | --ava]
+$yo node-typescript-express:classlib MyNewClass [--mocha | --ava]
 ```
 
 ## Highlights of the latest release
